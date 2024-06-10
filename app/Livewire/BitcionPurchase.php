@@ -14,7 +14,7 @@ class BitcionPurchase extends Component
     public $BtcPurchased = 0, $from = '', $to = '';
     public function render()
     {
-        
+
         $query = Email::where('status', 'Completed')->where('payment_note', 'Market Purchase Order');
         if ($this->from) {
             $from = Carbon::parse($this->from)->toDateString();
@@ -40,6 +40,17 @@ class BitcionPurchase extends Component
         }
         $data = $query->paginate(10);
         return view('livewire.bitcion-purchase', compact('data'))->extends('layouts/master')->section('content');
+    }
+    public function mount()
+    {
+        $bitcionPurchased = Email::where('status', 'Completed')
+            ->where('payment_note', 'Market Purchase Order')
+            ->select('amount')
+            ->get();
+        foreach ($bitcionPurchased as $total) {
+            $amount = $this->number($total->amount);
+            $this->BtcPurchased += (int) $amount;
+        }
     }
 
     public function number($data)
