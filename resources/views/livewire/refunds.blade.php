@@ -5,28 +5,42 @@
                 
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
-                    <div
-                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <div>
-                         <h6 class="m-0 font-weight-bold text-primary">Refunded Amount List</h6>
-                        <p class="text-muted"> Total Refunds <span class="text-bold text-danger    ">${{$cashRefunded}}</span></p>
-                        </div>
-                        <div class="dropdown no-arrow">
+                    <div class="card-header py-3 row">
+                        <div class="col-lg-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Received Amount List</h6>
+                            <p class="text-muted"> Total Amount Sent <span class="text-bold text-danger">${{$cashRefunded}}</span></p>
+                           
+                            </div>
                             {{-- <i class="fas fa-filter fa-2x text-info m-1"></i>
                             <input type="text" class="form-control"  wire:model.live="search" placeholder="Search here"> --}}
-                            <form
-                            class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                            <div class="input-group">
-                                <input type="text" wire:model.live="search" class="form-control bg-dark text-white border-0 small" placeholder="Search for..."
-                                    aria-label="Search" aria-describedby="basic-addon2">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button">
-                                        <i class="fas fa-filter  "></i>
-                                    </button>
+                        <div class="col-lg-9">
+                            <form class="d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                                <div class="row">
+                                    <div class="form-group col-md-4 col-sm-6" style="width: 100%">
+                                        <label>From</label>
+                                        <input type="date" class="form-control" wire:model.live="from" placeholder="Date From">
+                                    </div>
+                                    <div class="form-group col-md-4 col-sm-6">
+                                        <label>To</label>
+                                        <input type="date" class="form-control" wire:model.live="to">
+                                    </div>
+                                   
+                                    <div class="input-group col-md-4 col-sm-12 mt-md-4">
+                                        <input type="text" wire:model.live="search" class="form-control bg-dark text-white border-0 small" placeholder="Search for..."
+                                            aria-label="Search" aria-describedby="basic-addon2">
+                                        <div class="input-group-append " style="height:39px" >
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-filter"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
-                            </div>
-                        </form>
-                        </div>
+                               
+                                
+                            </form>    
+                        </div>   
+                   
                        
                     </div>
                     <!-- Card Body -->
@@ -84,7 +98,7 @@
                                             {{ Str::limit($item->btcdetails,50)}}
                                         </td> --}}
                                         <td class=" text-sm">
-                                            {{ $item->created_at->format('Y-m-d') }}
+                                            {{ $item->created_at->format('F j Y') }}
 
                                         </td>
                                       </tr>

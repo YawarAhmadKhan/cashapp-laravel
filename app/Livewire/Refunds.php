@@ -3,30 +3,42 @@
 namespace App\Livewire;
 
 use App\Models\Email;
+use Carbon\Carbon;
 use Livewire\WithPagination;
 use Livewire\Component;
 
 class Refunds extends Component
 {
     use WithPagination;
-    public $cashRefunded = 0, $search = '';
+    public $cashRefunded = 0, $search = '', $from, $to;
     public function render()
     {
-        // dd($this->search);
         $query = Email::where('status', 'Cash Refunded');
+        if ($this->from) {
+            $from = Carbon::parse($this->from)->toDateString();
+            // dd($from);
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($this->to) {
+
+            $to = Carbon::parse($this->to)->toDateString();
+            $query->whereDate('created_at', '<=', $to);
+        }
 
 
         if ($this->search) {
 
             $query->where(function ($subquery) {
-                $subquery->where('date', 'like', '%' . $this->search . '%')
+                $subquery->where('amount', 'like', '%' . $this->search . '%')
+                    ->orWhere('subject', 'like', '%' . $this->search . '%')
                     ->orWhere('payment_note', 'like', '%' . $this->search . '%');
             });
+
             // dd($query->get());
         }
+        $data = $query->paginate(10);
 
-        $data = $query->orderBy('updated_at', 'desc')->latest()->paginate(10);
-        // $data = Email::where('status', 'Cash Refunded')->latest()->paginate(10);
+
 
         return view('livewire.refunds', compact('data'))->extends('layouts/master')->section('content');
     }
