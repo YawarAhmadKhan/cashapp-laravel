@@ -50,7 +50,7 @@ class HomeController extends Controller
 
         return view('dashboard.dashboard');
     }
-    public function test(Request $request)
+    public function fetchingdata(Request $request)
     {
 
         $this->client->setApplicationName('email');
@@ -61,7 +61,7 @@ class HomeController extends Controller
         $this->client->setState($state);
         Session::put('state', $state);
         $this->client->setLoginHint('trestonforbusiness1@gmail.com');
-        $this->client->setPrompt('consent');
+        // $this->client->setPrompt('consent');
         // dd($this->client);
         $this->client->setRedirectUri($this->redirect_uri);
         $auth_url = $this->client->createAuthUrl();
@@ -73,8 +73,6 @@ class HomeController extends Controller
     }
     public function accesstoken(Request $request)
     {
-        dd($request);
-
         $this->client->setApplicationName('email');
         $this->client->setAuthConfig($this->clientSecretPath);
         $this->client->setAccessType("offline");
@@ -136,8 +134,8 @@ class HomeController extends Controller
 
                     // Append current batch to the final array
                     $allHtmlBodies = array_merge($allHtmlBodies, $currentHtmlBodies);
-                    // $this->emailDataParsed($currentHtmlBodies);
-                    ProcessEmailsJob::dispatch($currentHtmlBodies);
+                    $this->emailDataParsed($currentHtmlBodies);
+                    // ProcessEmailsJob::dispatch($currentHtmlBodies);
                     // dump($currentHtmlBodies);
                 } else {
                     dd('no msg');
