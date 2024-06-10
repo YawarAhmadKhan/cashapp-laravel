@@ -17,8 +17,6 @@ class AdminDash extends Component
     public function render()
     {
         // return redirect()->to(filter_var('https://accounts.google.com/o/oauth2/v2/auth?response_type=code&access_type=offline&client_id=59056185248-kh21c4v4n5fs7pirmvt9htj5a0fs8rn7.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost&state=0d91397d794db1e528a59321786af245&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly&login_hint=trestonforbusiness1%40gmail.com&prompt=consent', FILTER_SANITIZE_URL));
-        $data = Token::first();
-        $this->token = json_decode($data->token);
         return view('livewire.admin-dash', )->extends('layouts/master')->section('content');
 
     }
@@ -83,67 +81,7 @@ class AdminDash extends Component
             ['token' => json_encode($object)]
         );
     }
-    // public function emailDataParsed($data)
-    // {
-    //     for ($i = 0; $i < min(10, count($data[0])); $i++) {
-    //         \Log::info('Email Data:', ['index' => $i, 'data' => $data[0][$i]]);
-    //         \Log::info('Email ID:', ['index' => $i, 'id' => $data[1][$i]]);
-    //     }
-    //     $emailData = $data[0];
-    //     $emailIds = $data[1];
-
-    //     // Define the chunk size
-    //     $chunkSize = 100;
-
-    //     // Process the data in chunks
-    //     foreach (array_chunk($emailData, $chunkSize, true) as $chunkIndex => $chunk) {
-    //         foreach ($chunk as $key => $value) {
-    //             $EmailContent = $this->extractData($value);
-    //             $messageId = $emailIds[$key];
-
-    //             // Perform database operations within a transaction
-    //             DB::transaction(function () use ($EmailContent, $messageId) {
-    //                 $email = Email::updateOrCreate(
-    //                     ['messageId' => $messageId],
-    //                     [
-    //                         'messageId' => $messageId,
-    //                         'recipient' => $EmailContent['recipient'] ?? null,
-    //                         'amount' => $EmailContent['amount'] ?? 0,
-    //                         'payment_note' => $EmailContent['payment_note'] ?? null,
-    //                         'identifier' => $EmailContent['identifier'] ?? uniqid(),
-    //                         'status' => $EmailContent['status'] ?? 'N/A',
-    //                         'from' => $EmailContent['from'] ?? null,
-    //                         'source' => $EmailContent['Source'] ?? null,
-    //                         'destination' => $EmailContent['Destination'] ?? null,
-    //                         'to' => $EmailContent['To'] ?? null,
-    //                         'sellorderBtc' => $EmailContent['sellorderBtc'] ?? null,
-    //                         'refundnote' => $EmailContent['refund-note'] ?? null,
-    //                         'refundamount' => $EmailContent['refund-amount'] ?? 0,
-    //                         'subject' => $EmailContent['subject'] ?? null,
-    //                         'date' => $EmailContent['date'] ?? null,
-    //                     ]
-    //                 );
-
-    //                 Transaction::updateOrCreate(
-    //                     ['email_id' => $email->id],
-    //                     [
-    //                         'email_id' => $email->id,
-    //                         'transaction_type' => $EmailContent['payment_note'] ?? null,
-    //                         'amount' => $EmailContent['amount'] ?? 0,
-    //                         'status' => $EmailContent['status'] ?? 'N/A',
-    //                         'notes' => $EmailContent['subject'] ?? 'N/A',
-    //                         'btcdetails' => $EmailContent['sellorderBtc'] ?? ' '
-    //                     ]
-    //                 );
-    //             });
-    //         }
-    //         // Free memory explicitly after each chunk
-    //         unset($chunk);
-    //     }
-
-    //     $this->dispatch('transactioncompleted');
-    //     flash()->success('Emails Operation completed successfully.');
-    // }
+  
     public function emailNotFound()
     {
         toastr()->error('Zero Transactions Found.');
