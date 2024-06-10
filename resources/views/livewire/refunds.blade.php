@@ -7,8 +7,8 @@
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 row">
                         <div class="col-lg-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Received Amount List</h6>
-                            <p class="text-muted"> Total Amount Sent <span class="text-bold text-danger">${{$cashRefunded}}</span></p>
+                            <h6 class="m-0 font-weight-bold text-primary">Refund Amount List</h6>
+                            <p class="text-muted"> Total Amount Refunded <span class="text-bold text-danger">${{$cashRefunded}}</span></p>
                            
                             </div>
                             {{-- <i class="fas fa-filter fa-2x text-info m-1"></i>

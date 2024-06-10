@@ -11,20 +11,33 @@
                         <p class="text-muted"> Total Bitcion Purchased <span class="text-bold text-danger">${{$BtcPurchased}}</span></p>
                         </div>
                         
-                        <div class="dropdown no-arrow">
-                            <form
-        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-        <div class="input-group">
-            <input type="text" class="form-control bg-dark text-white border-0 small" placeholder="Search for..."
-                aria-label="Search" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
-                    <i class="fas fa-filter  "></i>
-                </button>
-            </div>
-        </div>
-    </form>
-                        </div>
+                        <div class="col-lg-9">
+                            <form class="d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                                <div class="row">
+                                    <div class="form-group col-md-4 col-sm-6" style="width: 100%">
+                                        <label>From</label>
+                                        <input type="date" class="form-control" wire:model.live="from" placeholder="Date From">
+                                    </div>
+                                    <div class="form-group col-md-4 col-sm-6">
+                                        <label>To</label>
+                                        <input type="date" class="form-control" wire:model.live="to">
+                                    </div>
+                                   
+                                    <div class="input-group col-md-4 col-sm-12 mt-md-4">
+                                        <input type="text" wire:model.live="search" class="form-control bg-dark text-white border-0 small" placeholder="Search for..."
+                                            aria-label="Search" aria-describedby="basic-addon2">
+                                        <div class="input-group-append " style="height:39px" >
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-filter"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                               
+                                
+                            </form>    
+                        </div>   
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
