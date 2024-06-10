@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class TransactionWidgets extends Component
 {
-    public $totalAmount = 0, $cash = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
+    public $totalAmount = 0, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
 
     #[On('transactioncompleted')]
     public function calculation()
@@ -20,6 +20,7 @@ class TransactionWidgets extends Component
         $this->calculateTotalSent();
         $this->calculateBitcoinTransactions();
         $this->disputeCash();
+        $this->Requests();
         $total = 0;
         $total = ($this->BtcPurchased + $this->totalSent);
         $this->cash = $this->totalAmount - $total;
@@ -84,6 +85,11 @@ class TransactionWidgets extends Component
             $this->cashRefunded += (int) $amount;
         }
         // $this->cash += $this->cashRefunded;
+    }
+    public function Requests()
+    {
+        $req = Email::where('status', 'Waiting for you to accept this request')->count();
+        // dd($req);
     }
     public function disputeCash()
     {

@@ -84,7 +84,8 @@
                                             {{ Str::limit($item->btcdetails,50)}}
                                         </td> --}}
                                         <td class=" text-sm">
-                                            {{ $item->date}}
+                                            {{ $item->created_at->format('Y-m-d') }}
+
                                         </td>
                                       </tr>
                                     @empty
