@@ -166,11 +166,11 @@
             
         </div>
         </div>
-            <div class="row d-flex justify-content-md-end">
-                <button id="authorize_button" class="col-md-2 col-sm-4 btn btn-sm btn-primary shadow-sm m-1"  onclick="handleAuthClick()"><i class="far fa-envelope"></i>&nbsp;Generate Report</button>
+            <div class="row d-flex justify-content-md-center">
+                <button id="authorize_button" class="col-md-2 col-sm-4 btn btn-sm btn-primary shadow-sm m-1 "  onclick="handleAuthClick()"><i class="far fa-envelope"></i>&nbsp;Generate Report</button>
                 <button id="signout_button" class="col-md-2 col-sm-4 btn btn-sm btn-primary shadow-sm m-1" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt fa-sm text-white"></i>&nbsp;Sign Out</button>
                <button id="refresh_button" class="col-md-2 col-sm-4  btn btn-sm btn-primary shadow-sm m-1" onclick="listMessages()"><i class="fas fa-sync fa-sm text-white"></i>&nbsp;Refresh Emails</button>
-               <button id="save_button" class="col-md-2 col-sm-4  btn btn-sm btn-primary shadow-sm m-1" onclick="saveEmails()"><i class="far fa-save fa-sm text-white"></i>&nbsp;Save Emails</button>
+               <div id="save_button" class="" onclick="saveEmails()"></div>
             </div>
             @livewire('transaction-widgets')
             {{-- {{$token}} --}}
@@ -235,7 +235,7 @@
             discoveryDocs: [DISCOVERY_DOC],
         });
         gapiInited = true;
-        maybeEnableButtons();
+        // maybeEnableButtons();
     }
 
     /**
@@ -249,7 +249,7 @@
         });
         console.log('mr token',tokenClient);
         // @this.token(tokenClient);
-        console.log('ye cheeeeeeze',{$token})
+       
         gisInited = true;
         maybeEnableButtons();
     }
@@ -272,9 +272,9 @@
             if (resp.error !== undefined) {
                 throw (resp);
             }
-            document.getElementById('signout_button').style.visibility = 'visible';
-            document.getElementById('refresh_button').style.visibility = 'visible';
-            document.getElementById('save_button').style.visibility = 'visible';
+            document.getElementById('signout_button').style.visibility = 'hidden';
+            document.getElementById('refresh_button').style.visibility = 'hidden';
+            document.getElementById('save_button').style.visibility = 'hidden';
             document.getElementById('authorize_button').innerText = 'Refresh Token';
             await listMessages();
             document.getElementById('saving-loader').style.display = 'none';

@@ -15,7 +15,10 @@ class Transactionlists extends Component
     #[On('transactioncompleted')]
     public function render()
     {
-        $query = Transaction::orderBy('updated_at', 'desc');
+        // Waiting for you to accept this request.
+        // Payment Failed
+        $statuses = ['Cash Refunded', 'Completed', 'Received', 'Payment Refunded', 'Bitcoin Withdrawal'];
+        $query = Transaction::whereIn('status', $statuses)->orderBy('updated_at', 'desc');
         if ($this->search) {
 
             $query->where(function ($subquery) {
