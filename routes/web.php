@@ -7,7 +7,7 @@ Route::get('/', function () {
 });
 
 Auth::routes();
-Route::get('/testing1', [App\Http\Controllers\HomeController::class, 'test'])->name('saving');
+Route::get('/testing1', [App\Http\Controllers\HomeController::class, 'fetchingdata'])->name('saving');
 Route::get('/token-php1', [App\Http\Controllers\HomeController::class, 'accesstoken'])->name('accesstoken');
 
 
