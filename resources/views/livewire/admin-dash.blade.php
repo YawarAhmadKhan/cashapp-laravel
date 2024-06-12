@@ -284,7 +284,9 @@
         if (gapi.client.getToken() === null) {
             // Prompt the user to select a Google Account and ask for consent to share their data
             // when establishing a new session.
-        tokenClient.requestAccessToken({prompt: '',login_hint: email});
+        // tokenClient.requestAccessToken({prompt: 'consent',login_hint: email});
+
+        tokenClient.requestAccessToken({prompt: 'consent'});
          
             
         } else {
