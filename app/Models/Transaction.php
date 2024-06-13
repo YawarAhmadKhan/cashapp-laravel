@@ -12,6 +12,7 @@ class Transaction extends Model
         'email_id',
         'transaction_type',
         'amount',
+        'appId',
         'status',
         'notes',
         'btcdetails'

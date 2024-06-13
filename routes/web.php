@@ -18,6 +18,8 @@ Route::get('/home', \App\Livewire\AdminDash::class)->name('dashboard')->middlewa
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('/home', \App\Livewire\AdminDash::class)->name('dashboard');
     Route::get('/emails', \App\Livewire\Transactions::class)->name('emailtransactions');
+    Route::get('/add-your-email', \App\Livewire\EmailListComponent::class)->name('add-your-email');
+
     Route::get('/receive-amount', \App\Livewire\ReceiveAmount::class)->name('receive-amount');
     Route::get('/sent-amount', \App\Livewire\SentAmount::class)->name('sent-amount');
     Route::get('/bticion-purchase', \App\Livewire\BitcionPurchase::class)->name('bitcionpurchase');

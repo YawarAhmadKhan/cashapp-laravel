@@ -6,15 +6,16 @@ use App\Models\Email;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use DB;
 
 class SentAmount extends Component
 {
     use WithPagination;
-    public $SentAmount = 0, $search = '', $from, $to;
+    public $SentAmount = 0, $search = '', $id = '', $from, $to;
     public function render()
     {
         // $this->reset();
-        $query = Email::where('status', 'Completed')
+        $query = Email::where('status', 'Completed')->where('appId', $this->id)
             ->where('payment_note', '!=', 'Market Purchase Order')
             ->where('payment_note', '!=', 'Market Sell Order');
 
@@ -39,7 +40,15 @@ class SentAmount extends Component
     }
     public function mount()
     {
-        $TotalSentTransactions = Email::where('status', 'Completed')
+        $this->reset();
+        $data = DB::table('app_id')->first();
+        $this->id = $data->appId;
+        $this->calculateSendAMount();
+
+    }
+    public function calculateSendAMount()
+    {
+        $TotalSentTransactions = Email::where('status', 'Completed')->where('appId', $this->id)
             ->where('payment_note', '!=', 'Market Purchase Order')
             ->where('payment_note', '!=', 'Market Sell Order')->get();
         foreach ($TotalSentTransactions as $total) {

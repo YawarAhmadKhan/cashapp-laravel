@@ -7,7 +7,7 @@
             {{-- <i class="fas fa-laugh-wink"></i> --}}
             <img class="" src="{{asset('Cash_App-Logo.wine.png')}}" style="width: 60px">
         </div>
-        <div class="sidebar-brand-text mx-3">Cash App</div>
+        <div class="sidebar-brand-text mx-3">Tracking App</div>
     </a>
 
     <!-- Divider -->
@@ -16,7 +16,7 @@
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
         <a class="nav-link" href="{{route('dashboard')}}"wire:navigate>
-            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <img src="{{asset('dashboar.png')}}" class="img-fluid"style="width: 23px" alt="Dasboardicone">
             <span>Dashboard</span></a>
     </li>
 
@@ -30,8 +30,14 @@
     <!-- Nav Item - Utilities Collapse Menu -->
     <li class="nav-item">
         <a class="nav-link" href="{{route('emailtransactions')}}" >
-            <i class="fas fa-envelope text-white"style="font-size: 20px;"></i>
-            <span>Emails</span>
+            <i class="fas fa-envelope text-warning"style="font-size: 20px;"></i>
+            <span>Transaction Emails</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{route('add-your-email')}}" >
+            <img src="{{asset('add email.png')}}"class="img-fluid"style="width: 23px" alt="icone">
+            <span>Add email</span>
         </a>
     </li>
     <!-- Divider -->

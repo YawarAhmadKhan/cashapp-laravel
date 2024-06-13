@@ -3,27 +3,47 @@
 namespace App\Livewire;
 
 use App\Models\Email;
+use App\Models\EmailList;
 use App\Models\Token;
 use App\Models\Transaction;
 use Symfony\Component\DomCrawler\Crawler;
 use Livewire\Component;
 use Carbon\Carbon;
+use DB;
 
 class AdminDash extends Component
 {
-    public $loader = '', $token = '';
+    public $loader = '', $token = '', $id = '', $fetchtransactionemail = '';
     protected $listeners = ['emailDataParsed' => 'handleEmailDataParsed'];
 
     public function render()
     {
-        // return redirect()->to(filter_var('https://accounts.google.com/o/oauth2/v2/auth?response_type=code&access_type=offline&client_id=59056185248-kh21c4v4n5fs7pirmvt9htj5a0fs8rn7.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost&state=0d91397d794db1e528a59321786af245&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly&login_hint=trestonforbusiness1%40gmail.com&prompt=consent', FILTER_SANITIZE_URL));
-        return view('livewire.admin-dash', )->extends('layouts/master')->section('content');
+
+
+        $data = EmailList::first();
+        $this->id = $data->id;
+        $this->fetchtransactionemail = EmailList::where('id', $this->id)->first();
+        $emails = EmailList::get();
+        // Checking For selected Email
+        $selectedemail = DB::table('app_id')->first();
+        return view('livewire.admin-dash', compact('emails', 'selectedemail'))->extends('layouts/master')->section('content');
 
     }
-    // ProcessEmailsJob::dispatch($data);
+
+    public function selectemailChanged($id)
+    {
+        $this->selectemail = $id;
+        DB::table('app_id')->update([
+            'appId' => $id
+        ]);
+        $this->fetchtransactionemail = EmailList::where('id', $id)->first();
+        $this->dispatch('emailupdated', data: $this->fetchtransactionemail);
+
+        // dd($this->fetchtransactionemail);
+    }
+
     public function emailDataParsed($data)
     {
-        // return redirect()->to(filter_var('https://accounts.google.com/o/oauth2/v2/auth?response_type=code&access_type=offline&client_id=59056185248-kh21c4v4n5fs7pirmvt9htj5a0fs8rn7.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost&state=0d91397d794db1e528a59321786af245&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly&login_hint=trestonforbusiness1%40gmail.com&prompt=consent', FILTER_SANITIZE_URL));
         // dd($data);
         foreach ($data[0] as $key => $value) {
             // dump($data[1][$key]);
@@ -34,6 +54,7 @@ class AdminDash extends Component
                 ['messageId' => $data[1][$key]],
                 [
                     'messageId' => $data[1][$key],
+                    'appId' => $data[2],
                     'recipient' => $EmailContent['recipient'],
                     'amount' => $EmailContent['amount'],
                     'payment_note' => $EmailContent['payment_note'],
@@ -58,6 +79,7 @@ class AdminDash extends Component
 
                 [
                     'email_id' => $email->id,
+                    'appId' => $email->appId,
                     'transaction_type' => $EmailContent['payment_note'],
                     'amount' => $EmailContent['amount'] ?? 0,
                     'status' => $EmailContent['status'] ?? 'N/A',
@@ -71,7 +93,7 @@ class AdminDash extends Component
         $this->dispatch('transactioncompleted');
         flash()->success('Emails Operation completed successfully.');
 
-        return response()->json('win');
+        // return response()->json('win');
     }
     public function token($object)
     {
@@ -81,7 +103,7 @@ class AdminDash extends Component
             ['token' => json_encode($object)]
         );
     }
-  
+
     public function emailNotFound()
     {
         toastr()->error('Zero Transactions Found.');
