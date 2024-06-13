@@ -159,26 +159,19 @@
        
         <!-- Page Heading -->
         <div class="row ">
-           <div class="col-lg-6">
+           <div class="col-lg-3">
             <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            <p>From:<span class="text-danger">{{$fetchtransactionemail->filteremail}}</span></p>
-           </div>
-           
-           <div class="col-lg-6">
-            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width:auto">
-              <i class="fa fa-calendar text-info"></i>&nbsp;
-              <span></span> <i class="fa fa-caret-down text-danger"></i>
-              
-          </div>
-           </div>
-
             
-           
+           </div>
+           <div class="col-lg-6 d-flex justify-content-start">
+            {{-- <p>From:<span class="text-danger">{{$fetchtransactionemail->filteremail}}</span></p> --}}
+           </div>
         </div>
-            <div class="row d-flex justify-content-center align-items-start mb-1 mt-1">
-                <button id="authorize_button" class="col-md-4 col-lg-2 btn btn-sm btn-primary shadow-sm m-1 "  onclick="handleAuthClick()"><i class="far fa-envelope"></i>&nbsp;Generate Report</button>               
+            <div class="row  mb-1 mt-1">
+               
                 
                  <div class="col-md-4 col-lg-4">
+                  <label>Select Emails:</label>
                   <select class="form-control form-control-sm mt-1" wire.model:live="selectemail" wire:change="selectemailChanged($event.target.value)">
                     <option selected>Select Your Email</option>
                     @forelse ($emails as $item)
@@ -189,6 +182,17 @@
                    
                   </select>
                 </div>
+                <div class="col-lg-4 d-flex align-items-end justify-content-center">
+                  <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width:auto">
+                    <i class="fa fa-calendar text-info"></i>&nbsp;
+                    <span></span> <i class="fa fa-caret-down text-danger"></i>
+                    
+                </div>
+                 </div>
+                 <div class="col-md-4 col-lg-4 d-flex align-items-end">
+                  <button id="authorize_button" class=" btn btn-sm btn-primary shadow-sm m-1 "  onclick="handleAuthClick()">Fetch emails from gmail</button>
+                 </div>
+                                
               
             </div>
             <div class="">

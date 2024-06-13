@@ -37,6 +37,7 @@ class AdminDash extends Component
             'appId' => $id
         ]);
         $this->fetchtransactionemail = EmailList::where('id', $id)->first();
+        // dd($this->fetchtransactionemail);
         $this->dispatch('emailupdated', data: $this->fetchtransactionemail);
 
         // dd($this->fetchtransactionemail);
