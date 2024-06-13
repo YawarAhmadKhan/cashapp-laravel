@@ -6,14 +6,15 @@ use App\Models\Email;
 use Carbon\Carbon;
 use Livewire\WithPagination;
 use Livewire\Component;
+use DB;
 
 class Refunds extends Component
 {
     use WithPagination;
-    public $cashRefunded = 0, $search = '', $from, $to;
+    public $cashRefunded = 0, $search = '', $id = '', $from, $to;
     public function render()
     {
-        $query = Email::where('status', 'Cash Refunded');
+        $query = Email::where('status', 'Cash Refunded')->where('appId', $this->id);
         if ($this->from) {
             $from = Carbon::parse($this->from)->toDateString();
             // dd($from);
@@ -44,7 +45,14 @@ class Refunds extends Component
     }
     public function mount()
     {
-        $totalRefund = Email::where('status', 'Cash Refunded')->get();
+        $this->reset();
+        $data = DB::table('app_id')->first();
+        $this->id = $data->appId;
+        $this->calculateRefund();
+    }
+    public function calculateRefund()
+    {
+        $totalRefund = Email::where('status', 'Cash Refunded')->where('appId', $this->id)->get();
         foreach ($totalRefund as $total) {
             $amount = $this->number($total->amount);
             $this->cashRefunded += (int) $amount;

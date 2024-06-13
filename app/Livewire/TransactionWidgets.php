@@ -3,18 +3,18 @@
 namespace App\Livewire;
 
 use App\Models\Email;
+use App\Models\EmailList;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use DB;
 
 class TransactionWidgets extends Component
 {
-    public $totalAmount = 0, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
+    public $totalAmount = 0, $id = 1, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
 
     #[On('transactioncompleted')]
     public function calculation()
     {
-        $this->reset();
-
         $this->calculateCashRefunded();
         $this->calculateTotalReceived();
         $this->calculateTotalSent();
@@ -25,46 +25,28 @@ class TransactionWidgets extends Component
         $total = ($this->BtcPurchased + $this->totalSent);
         $this->cash = $this->totalAmount - $total;
         $this->cash += $this->cashRefunded + $this->Btcamount;
-        // Sent Refund
-        // $totalrefund = Email::where('status', 'Cash Refunded')->select('amount')->get();
-        // foreach ($totalrefund as $total) {
-        //     $amount = $this->number($total->amount);
-        //     $this->cashRefunded += (int) $amount;
-        //     $this->totalAmount = $this->totalAmount + $this->cashRefunded;
-        // }
-        // // dump($this->totalAmount);
+    }
+    public function secondApp()
+    {
+        // dd($this->id);
+        $this->calculateCashRefunded();
+        $this->calculateTotalReceived();
+        $this->calculateTotalSent();
+        $this->calculateBitcoinTransactions();
+        $this->disputeCash();
+        $this->Requests();
+        $total = 0;
+        $total = ($this->BtcPurchased + $this->totalSent);
+        $this->cash = $this->totalAmount - $total;
+        $this->cash += $this->cashRefunded + $this->Btcamount;
+    }
+    protected $listeners = ['emailupdated'];
+    public function emailupdated($data)
+    {
 
-
-        // //  Receive
-        // $totalreceive = Email::where('status', 'Received')->select('amount')->get();
-        // foreach ($totalreceive as $total) {
-        //     $amount = $this->number($total->amount);
-        //     // dump($amount);
-        //     $this->totalAmount += (int) $amount;
-        // }
-        // // dd($this->totalAmount);
-        // // Sent amount   
-        // $totalsent = Email::where('status', 'Completed')->where('payment_note', '!=', 'Market Purchase Order')->where('payment_note', '!=', 'Market Sell Order')->select('amount')->get();
-        // foreach ($totalsent as $total) {
-        //     $amount = $this->number($total->amount);
-        //     $this->totalSent += (int) $amount;
-        // }
-        // //    Bitcion Purchased
-        // $bitcionPurchased = Email::where('status', 'Completed')->where('payment_note', 'Market Purchase Order')->select('amount')->get();
-        // foreach ($bitcionPurchased as $total) {
-        //     $amount = $this->number($total->amount);
-        //     $this->BtcPurchased += (int) $amount;
-        // }
-        // $bitcionSell = Email::where('status', 'Completed')->where('payment_note', 'Market Sell Order')->select('amount', 'sellorderBtc')->get();
-        // foreach ($bitcionSell as $total) {
-        //     $amount = $this->number($total->amount);
-        //     $fee = json_decode($total->sellorderBtc);
-        //     $this->Fee = $this->number($fee->Fee);
-        //     $this->Btcsell += (int) $amount;
-        //     $this->Btcamount = $this->Btcsell - $this->Fee;
-        // }
-        // $this->totalAmount = $this->totalAmount + $this->Btcamount;
-        // $this->cash = $this->totalAmount - ($this->BtcPurchased + $this->totalSent);
+        $this->reset();
+        $this->id = $data['id'];
+        $this->secondApp();
     }
 
     public function render()
@@ -73,18 +55,23 @@ class TransactionWidgets extends Component
     }
     public function mount()
     {
+        $this->reset();
+        $data = EmailList::first();
+        $this->id = $data->id;
+        DB::table('app_id')->update([
+            'appId' => $this->id
+        ]);
         $this->calculation();
     }
+
     private function calculateCashRefunded()
     {
         $test = Email::get()->count();
-        // dd($test);
-        $totalrefund = Email::where('status', 'Cash Refunded')->select('amount')->get();
+        $totalrefund = Email::where('status', 'Cash Refunded')->where('appId', $this->id)->select('amount')->get();
         foreach ($totalrefund as $total) {
             $amount = $this->number($total->amount);
             $this->cashRefunded += (int) $amount;
         }
-        // $this->cash += $this->cashRefunded;
     }
     public function Requests()
     {
@@ -93,15 +80,13 @@ class TransactionWidgets extends Component
     }
     public function disputeCash()
     {
-        $dispute = Email::where('status', 'Payment Refunded')->select('subject')->get();
+        $dispute = Email::where('status', 'Payment Refunded')->where('appId', $this->id)->select('subject')->get();
         // dd($dispute);
         foreach ($dispute as $item) {
             if (preg_match('/\$(\d+(\.\d{1,2})?)/', $item->subject, $matches)) {
-                // Store the extracted amount
                 $this->disputeAmounts += (float) $matches[1];
                 $this->disputeAmounts;
             } else {
-                // Log or handle cases where no amount is found
                 $this->disputeAmounts = "Zero Disputes ";
             }
         }
@@ -109,7 +94,7 @@ class TransactionWidgets extends Component
 
     private function calculateTotalReceived()
     {
-        $totalreceive = Email::where('status', 'Received')->select('amount')->get();
+        $totalreceive = Email::where('status', 'Received')->where('appId', $this->id)->select('amount')->get();
         foreach ($totalreceive as $total) {
             $amount = $this->number($total->amount);
             $this->totalAmount += (int) $amount;
@@ -121,6 +106,7 @@ class TransactionWidgets extends Component
         $totalsent = Email::where('status', 'Completed')
             ->where('payment_note', '!=', 'Market Purchase Order')
             ->where('payment_note', '!=', 'Market Sell Order')
+            ->where('appId', $this->id)
             ->select('amount')
             ->get();
         foreach ($totalsent as $total) {
@@ -139,6 +125,7 @@ class TransactionWidgets extends Component
     private function calculateBitcoinPurchased()
     {
         $bitcionPurchased = Email::where('status', 'Completed')
+            ->where('appId', $this->id)
             ->where('payment_note', 'Market Purchase Order')
             ->select('amount')
             ->get();
@@ -152,6 +139,7 @@ class TransactionWidgets extends Component
     private function calculateBitcoinSold()
     {
         $bitcionSell = Email::where('status', 'Completed')
+            ->where('appId', $this->id)
             ->where('payment_note', 'Market Sell Order')
             ->select('amount', 'sellorderBtc')
             ->get();

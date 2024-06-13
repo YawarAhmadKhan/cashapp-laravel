@@ -52,7 +52,9 @@
                         </td>
                       </tr>
                       @empty
-                          
+                          <tr>
+                            <td>Zero Data Found For Selected Email</td>
+                          </tr>
                       @endforelse
                       
                     </tbody>

@@ -6,11 +6,12 @@ use App\Models\Email;
 use Carbon\Carbon;
 use Livewire\WithPagination;
 use Livewire\Component;
+use DB;
 
 class BitcionSell extends Component
 {
     use WithPagination;
-    public $bitcionSell = 0, $BtcSell = 0, $search = '', $from = '', $to = '';
+    public $bitcionSell = 0, $BtcSell = 0, $search = '', $id = '', $from = '', $to = '';
     public function render()
     {
         // $this->reset();
@@ -22,7 +23,7 @@ class BitcionSell extends Component
         //     $amount = $this->number($total->amount);
         //     $this->BtcSell += (int) $amount;
         // }
-        $query = Email::where('status', 'Completed')->where('payment_note', 'Market Sell Order');
+        $query = Email::where('status', 'Completed')->where('payment_note', 'Market Sell Order')->where('appId', $this->id);
         if ($this->from) {
             $from = Carbon::parse($this->from)->toDateString();
             // dd($from);
@@ -50,7 +51,14 @@ class BitcionSell extends Component
     }
     public function mount()
     {
-        $BtcSell = Email::where('status', 'Completed')
+        $this->reset();
+        $data = DB::table('app_id')->first();
+        $this->id = $data->appId;
+        $this->calculteBitcionSell();
+    }
+    public function calculteBitcionSell()
+    {
+        $BtcSell = Email::where('status', 'Completed')->where('appId', $this->id)
             ->where('payment_note', 'Market Sell Order')
             ->select('amount')
             ->get();
@@ -59,7 +67,6 @@ class BitcionSell extends Component
             $this->BtcSell += (int) $amount;
         }
     }
-   
 
     public function number($data)
     {

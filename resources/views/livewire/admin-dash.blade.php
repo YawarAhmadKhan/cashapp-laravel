@@ -158,20 +158,43 @@
     <div class="container-fluid">
        
         <!-- Page Heading -->
-        <div class="row d-flex justify-content-between">
-           <div><h1 class="h3 mb-0 text-gray-800">Dashboard</h1></div>
-           <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width: 27%">
-            <i class="fa fa-calendar text-info"></i>&nbsp;
-            <span></span> <i class="fa fa-caret-down text-danger"></i>
+        <div class="row ">
+           <div class="col-lg-6">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            <p>From:<span class="text-danger">{{$fetchtransactionemail->filteremail}}</span></p>
+           </div>
+           
+           <div class="col-lg-6">
+            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width:auto">
+              <i class="fa fa-calendar text-info"></i>&nbsp;
+              <span></span> <i class="fa fa-caret-down text-danger"></i>
+              
+          </div>
+           </div>
+
             
+           
         </div>
-        </div>
-            <div class="row d-flex justify-content-md-center">
-                <button id="authorize_button" class="col-md-2 col-sm-4 btn btn-sm btn-primary shadow-sm m-1 "  onclick="handleAuthClick()"><i class="far fa-envelope"></i>&nbsp;Generate Report</button>
-                <button id="signout_button" class="col-md-2 col-sm-4 btn btn-sm btn-primary shadow-sm m-1" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt fa-sm text-white"></i>&nbsp;Sign Out</button>
-               <button id="refresh_button" class="col-md-2 col-sm-4  btn btn-sm btn-primary shadow-sm m-1" onclick="listMessages()"><i class="fas fa-sync fa-sm text-white"></i>&nbsp;Refresh Emails</button>
-               <div id="save_button" class="" onclick="saveEmails()"></div>
+            <div class="row d-flex justify-content-center align-items-start mb-1 mt-1">
+                <button id="authorize_button" class="col-md-4 col-lg-2 btn btn-sm btn-primary shadow-sm m-1 "  onclick="handleAuthClick()"><i class="far fa-envelope"></i>&nbsp;Generate Report</button>               
+                
+                 <div class="col-md-4 col-lg-4">
+                  <select class="form-control form-control-sm mt-1" wire.model:live="selectemail" wire:change="selectemailChanged($event.target.value)">
+                    <option selected>Select Your Email</option>
+                    @forelse ($emails as $item)
+                    <option value="{{$item->id}}"{{ $item->id == $selectedemail->appId ? 'selected' : '' }}>{{$item->email}}</option>
+                    @empty
+                        <option>Zero Emails</option>
+                    @endforelse
+                   
+                  </select>
+                </div>
+              
             </div>
+            <div class="">
+              <div id="signout_button" class="" onclick="handleSignoutClick()"></div>
+              <div id="refresh_button" class="" onclick="listMessages()"></div>
+              <div id="save_button" class="" onclick="saveEmails()"></div></div>
             @livewire('transaction-widgets')
             {{-- {{$token}} --}}
         <div class="row">
@@ -194,6 +217,7 @@
     <!-- /.container-fluid -->
 @push('googleApi')
 <script type="text/javascript">
+
 // setInterval(() => {
 //   handleAuthClick();
 // }, 5000);
@@ -212,8 +236,20 @@
     let gapiInited = false;
     let gisInited = false;
     let emailData = [];
-
-    document.getElementById('authorize_button').style.visibility = 'visible';
+    var appId = '{{ $fetchtransactionemail->id}}';
+    var email = '{{ $fetchtransactionemail->email}}';
+    var filterEmail = '{{ $fetchtransactionemail->filteremail}}';
+    var initialDate = moment().subtract(7, 'days');
+    var endDate = moment();
+    
+    document.addEventListener('emailupdated', event => {
+      
+      const object = event.detail.data;
+        email = object.email;
+        filterEmail = object.filteremail;
+        appId = object.id; 
+    });
+        document.getElementById('authorize_button').style.visibility = 'visible';
     document.getElementById('signout_button').style.visibility = 'hidden';
     document.getElementById('refresh_button').style.visibility = 'hidden';
     document.getElementById('save_button').style.visibility = 'hidden';
@@ -280,13 +316,12 @@
             document.getElementById('saving-loader').style.display = 'none';
             document.getElementById('loading-wrapper').style.display = 'none';
         };
-        const email = 'trestonforbusiness1@gmail.com';
+        //  email = '{{ $fetchtransactionemail->email}}';
+        console.log('selected client email',email);
         if (gapi.client.getToken() === null) {
             // Prompt the user to select a Google Account and ask for consent to share their data
             // when establishing a new session.
-        tokenClient.requestAccessToken({prompt: '',login_hint: email});
-         
-            
+        tokenClient.requestAccessToken({prompt: '', login_hint: email});
         } else {
             // Skip display of account chooser and consent dialog for an existing session.
          tokenClient.requestAccessToken({prompt: ''});
@@ -309,8 +344,7 @@
             document.getElementById('save_button').style.visibility = 'hidden';
         }
     }
-    var initialDate = moment().subtract(7, 'days');
-    var endDate = moment();
+    
 
 function cb(initialDate, endDate) {
     $('#reportrange span').html(initialDate.format('MMMM D, YYYY') + ' - ' + endDate.format('MMMM D, YYYY'));
@@ -342,10 +376,10 @@ $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
 
 
     async function listMessages() {
- console.log('start', initialDate);
-console.log('end',  endDate);
+
       console.log('list msges called----');
-    const filterEmail = 'cash@square.com';
+      console.log('filter email',filterEmail);
+    
     let emailData = [];
     let emailId = [];
     const dateRangeQuery = `after:${initialDate} before:${endDate}`;
@@ -406,7 +440,7 @@ if(!response.result.messages){
 
             // Update nextPageToken for the next iteration
             // console.log('---------->--->',messageCount)
-            @this.emailDataParsed([emailData,emailId]);
+            @this.emailDataParsed([emailData,emailId,appId]);
             document.getElementById('loading-wrapper').style.display = 'none';
             document.getElementById('saving-loader').style.display = 'flex';
             

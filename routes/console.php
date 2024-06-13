@@ -7,4 +7,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command('app:fetch-emails')->everyMinute();
+Schedule::command('app:fetch-emails')->everySecond();

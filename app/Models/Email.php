@@ -10,6 +10,7 @@ class Email extends Model
     use HasFactory;
     protected $fillable = [
         'messageId',
+        'appId',
         'recipient',
         'amount',
         'payment_note',

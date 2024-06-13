@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Email;
+use App\Models\EmailList;
+use App\Models\YourEmail;
 use Illuminate\Support\Carbon;
 use Livewire\WithPagination;
 use App\Models\Transaction;
@@ -13,12 +15,12 @@ class ReceiveAmount extends Component
 {
     use WithPagination;
 
-    public $Receive = 0, $search = '', $test = "ok", $from = '', $to = '';
+    public $Receive = 0, $search = '', $id = 1, $test = "ok", $from = '', $to = '';
     public function render()
     {
 
         // $totalreceive = Email::where('status', 'Received')->orderBy('updated_at', 'desc')->paginate(10);
-        $query = Email::where('status', 'Received');
+        $query = Email::where('status', 'Received')->where('appId', $this->id);
 
         if ($this->search) {
             $query->where(function ($subquery) {
@@ -42,16 +44,18 @@ class ReceiveAmount extends Component
 
         return view('livewire.receive-amount', compact('totalreceive'))->extends('layouts/master')->section('content');
     }
-    // public function updated()
-    // {
 
-    // }
     public function mount()
     {
-        // $today = Carbon::today()->toDateString(); // Gets today's date in 'Y-m-d' format
+        $this->reset();
+        $data = DB::table('app_id')->first();
+        $this->id = $data->appId;
+        $this->calculateReceivedAMount();
 
-        // $this->to = $today;
-        $totalreceive = Email::where('status', 'Received')->get();
+    }
+    public function calculateReceivedAMount()
+    {
+        $totalreceive = Email::where('status', 'Received')->where('appId', $this->id)->get();
         foreach ($totalreceive as $total) {
             $amount = $this->number($total->amount);
             $this->Receive += (int) $amount;

@@ -6,13 +6,14 @@ use App\Models\Transaction;
 use Livewire\WithPagination;
 use App\Models\Email;
 use Livewire\Component;
+use DB;
 
 class Transactions extends Component
 {
 
     use WithPagination;
 
-    public $amount = null, $subject = '', $transactionid = null;
+    public $amount = null, $subject = '', $transactionid = null, $id = '';
     protected $rules = [
         'amount' => ['required', 'numeric'],
         'subject' => 'required'
@@ -20,8 +21,15 @@ class Transactions extends Component
     ];
     public function render()
     {
-        $data = Email::latest()->paginate(5);
+        $data = Email::where('appId', $this->id)->latest()->paginate(5);
         return view('livewire.transactions', compact('data'))->extends('layouts/master')->section('content');
+    }
+    public function mount()
+    {
+        $this->reset();
+        $data = DB::table('app_id')->first();
+        $this->id = $data->appId;
+        // $this->calculteBitcionPurchsed();
     }
     public function edit($id)
     {
@@ -32,8 +40,9 @@ class Transactions extends Component
         $this->amount = $this->number($Singlemail->amount);
         $this->dispatch('openModal');
     }
-    public function updated($field){
-        $this->validateOnly($field,$this->rules);
+    public function updated($field)
+    {
+        $this->validateOnly($field, $this->rules);
 
     }
     public function update()
