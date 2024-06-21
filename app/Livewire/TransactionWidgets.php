@@ -10,7 +10,7 @@ use DB;
 
 class TransactionWidgets extends Component
 {
-    public $totalAmount = 0, $id = 1, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
+    public $totalAmount = 0, $id = 1, $date = null, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
 
 
 
@@ -26,6 +26,7 @@ class TransactionWidgets extends Component
         $this->id = $selectedEmail->appId;
         $this->calculation();
     }
+
     // this listener is fired from adminDash componenet when someone changed email
     protected $listeners = ['emailChanged'];
     public function emailChanged($data)
@@ -34,6 +35,10 @@ class TransactionWidgets extends Component
         $this->reset();
         $this->id = $data['id'];
         $this->getSelectedEmailData();
+    }
+    public function updated()
+    {
+        $this->calculation();
     }
     // When all email data fetch from gmail this listener is  called calculation to render fresh data on transaction widgets
     #[On('transactioncompleted')]
@@ -46,6 +51,7 @@ class TransactionWidgets extends Component
         $this->disputeCash();
         $this->Requests();
         $total = 0;
+
         $total = ($this->BtcPurchased + $this->totalSent);
         $this->cash = $this->totalAmount - $total;
         $this->cash += $this->cashRefunded + $this->Btcamount;
@@ -59,6 +65,7 @@ class TransactionWidgets extends Component
         $this->disputeCash();
         $this->Requests();
         $total = 0;
+
         $total = ($this->BtcPurchased + $this->totalSent);
         $this->cash = $this->totalAmount - $total;
         $this->cash += $this->cashRefunded + $this->Btcamount;
@@ -66,11 +73,22 @@ class TransactionWidgets extends Component
 
     private function calculateCashRefunded()
     {
+        // dd($this->date);
         $test = Email::get()->count();
-        $totalrefund = Email::where('status', 'Cash Refunded')->where('appId', $this->id)->select('amount')->get();
-        foreach ($totalrefund as $total) {
-            $amount = $this->number($total->amount);
-            $this->cashRefunded += (int) $amount;
+        $totalRefund = Email::where('status', 'Cash Refunded')
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $date); // Use whereDate for date comparison
+            }, function ($query) {
+                return $query; // No additional condition if $this->date is falsy
+            })
+            ->where('appId', $this->id)
+            ->select('amount')
+            ->get();
+
+        $this->cashRefunded = 0;
+        foreach ($totalRefund as $total) {
+            $amount = $this->number($total->amount); // Assuming $this->number() converts to integer
+            $this->cashRefunded += $amount;
         }
     }
     public function Requests()
@@ -80,7 +98,15 @@ class TransactionWidgets extends Component
     }
     public function disputeCash()
     {
-        $dispute = Email::where('status', 'Payment Refunded')->where('appId', $this->id)->select('subject')->get();
+        $dispute = Email::where('status', 'Payment Refunded')
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $this->date);
+            }, function ($query) {
+                return $query;
+            })
+            ->where('appId', $this->id)->select('subject')
+            ->get();
+        $this->disputeAmounts = 0;
         // dd($dispute);
         foreach ($dispute as $item) {
             if (preg_match('/\$(\d+(\.\d{1,2})?)/', $item->subject, $matches)) {
@@ -94,7 +120,16 @@ class TransactionWidgets extends Component
 
     private function calculateTotalReceived()
     {
-        $totalreceive = Email::where('status', 'Received')->where('appId', $this->id)->select('amount')->get();
+        $totalreceive = Email::where('status', 'Received')->where('appId', $this->id)
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $this->date);
+            }, function ($query) {
+                return $query;
+            })
+            ->select('amount')->get();
+        // dd($totalreceive);
+        $this->totalAmount = 0;
+
         foreach ($totalreceive as $total) {
             $amount = $this->number($total->amount);
             $this->totalAmount += (int) $amount;
@@ -107,8 +142,15 @@ class TransactionWidgets extends Component
             ->where('payment_note', '!=', 'Market Purchase Order')
             ->where('payment_note', '!=', 'Market Sell Order')
             ->where('appId', $this->id)
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $this->date);
+            }, function ($query) {
+
+                return $query;
+            })
             ->select('amount')
             ->get();
+        $this->totalSent = 0;
         foreach ($totalsent as $total) {
             $amount = $this->number($total->amount);
             $this->totalSent += (int) $amount;
@@ -127,8 +169,14 @@ class TransactionWidgets extends Component
         $bitcionPurchased = Email::where('status', 'Completed')
             ->where('appId', $this->id)
             ->where('payment_note', 'Market Purchase Order')
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $this->date);
+            }, function ($query) {
+                return $query;
+            })
             ->select('amount')
             ->get();
+        $this->BtcPurchased = 0;
         foreach ($bitcionPurchased as $total) {
             $amount = $this->number($total->amount);
             $this->BtcPurchased += (int) $amount;
@@ -141,8 +189,16 @@ class TransactionWidgets extends Component
         $bitcionSell = Email::where('status', 'Completed')
             ->where('appId', $this->id)
             ->where('payment_note', 'Market Sell Order')
+            ->when($this->date, function ($query, $date) {
+                return $query->whereDate('created_at', $this->date);
+            }, function ($query) {
+                return $query;
+            })
             ->select('amount', 'sellorderBtc')
             ->get();
+        $this->Fee = 0;
+        $this->Btcsell = 0;
+        $this->Btcamount = 0;
         foreach ($bitcionSell as $total) {
             $amount = $this->number($total->amount);
             $fee = json_decode($total->sellorderBtc);
@@ -155,6 +211,7 @@ class TransactionWidgets extends Component
 
     public function number($data)
     {
-        return floatval(preg_replace('/[^0-9.]/', '', $data));
+        $number = 0;
+        return $number = floatval(preg_replace('/[^0-9.]/', '', $data));
     }
 }

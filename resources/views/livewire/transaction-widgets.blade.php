@@ -2,11 +2,10 @@
     <!-- Content Row -->
     <div class="row">
         <div class="col-md-12">
-            <div class="col-md-4 mb-2">
-                <label>Select Date:</label>
+            <div class="col-md-4 mb-2 mt-2">
+                <label>Select Transaction Date:</label>
             <input type="date" class="form-control" wire:model.live="date">
-            </div>
-            
+            </div>           
         </div>
     </div>
     <div class="row">
