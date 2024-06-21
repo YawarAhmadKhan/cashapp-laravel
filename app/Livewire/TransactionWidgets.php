@@ -12,6 +12,30 @@ class TransactionWidgets extends Component
 {
     public $totalAmount = 0, $id = 1, $cash = 0, $requests = 0, $disputeAmounts = 0, $totalSent = 0, $cashRefunded = 0, $BtcPurchased = 0, $Btcamount = 0, $Fee = 0, $Btcsell = 0;
 
+
+
+
+    public function render()
+    {
+        return view('livewire.transaction-widgets');
+    }
+    public function mount()
+    {
+        $this->reset();
+        $selectedEmail = DB::table('app_id')->first();
+        $this->id = $selectedEmail->appId;
+        $this->calculation();
+    }
+    // this listener is fired from adminDash componenet when someone changed email
+    protected $listeners = ['emailChanged'];
+    public function emailChanged($data)
+    {
+
+        $this->reset();
+        $this->id = $data['id'];
+        $this->getSelectedEmailData();
+    }
+    // When all email data fetch from gmail this listener is  called calculation to render fresh data on transaction widgets
     #[On('transactioncompleted')]
     public function calculation()
     {
@@ -26,9 +50,8 @@ class TransactionWidgets extends Component
         $this->cash = $this->totalAmount - $total;
         $this->cash += $this->cashRefunded + $this->Btcamount;
     }
-    public function secondApp()
+    public function getSelectedEmailData()
     {
-        // dd($this->id);
         $this->calculateCashRefunded();
         $this->calculateTotalReceived();
         $this->calculateTotalSent();
@@ -39,29 +62,6 @@ class TransactionWidgets extends Component
         $total = ($this->BtcPurchased + $this->totalSent);
         $this->cash = $this->totalAmount - $total;
         $this->cash += $this->cashRefunded + $this->Btcamount;
-    }
-    protected $listeners = ['emailupdated'];
-    public function emailupdated($data)
-    {
-
-        $this->reset();
-        $this->id = $data['id'];
-        $this->secondApp();
-    }
-
-    public function render()
-    {
-        return view('livewire.transaction-widgets');
-    }
-    public function mount()
-    {
-        $this->reset();
-        $data = EmailList::first();
-        $this->id = $data->id;
-        DB::table('app_id')->update([
-            'appId' => $this->id
-        ]);
-        $this->calculation();
     }
 
     private function calculateCashRefunded()
