@@ -13,7 +13,7 @@ class Transactions extends Component
 
     use WithPagination;
 
-    public $amount = null, $subject = '', $transactionid = null, $id = '';
+    public $amount = null, $subject = '', $transactionid = null, $id = '', $search = '';
     protected $rules = [
         'amount' => ['required', 'numeric'],
         'subject' => 'required'
@@ -21,7 +21,20 @@ class Transactions extends Component
     ];
     public function render()
     {
-        $data = Email::where('appId', $this->id)->latest()->paginate(5);
+        $statuses = ['Cash Refunded', 'Completed', 'Received', 'Payment Refunded', 'Bitcoin Withdrawal'];
+        $query = Email::whereIn('status', $statuses)->where('appId', $this->id);
+
+        if ($this->search) {
+            $query->where(function ($subquery) {
+                $subquery->where('recipient', 'like', '%' . $this->search . '%')
+                    ->orWhere('subject', 'like', '%' . $this->search . '%')
+                    ->orWhere('payment_note', 'like', '%' . $this->search . '%');
+            });
+        }
+
+
+
+        $data = $query->latest()->paginate(50);
         return view('livewire.transactions', compact('data'))->extends('layouts/master')->section('content');
     }
     public function mount()
