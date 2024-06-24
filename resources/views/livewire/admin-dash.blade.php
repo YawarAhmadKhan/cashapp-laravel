@@ -172,7 +172,8 @@
                 
                  <div class="col-md-4 col-lg-4">
                   <label>Select Emails:</label>
-                  <select class="form-control form-control-sm mt-1" wire.model:live="selectemail" wire:change="selectemailChanged($event.target.value)">
+                  {{-- wire.model:live="selectemail" wire:change="selectemailChanged($event.target.value)" --}}
+                  <select class="form-control form-control-sm mt-1"wire.model:live="selectemail" wire:change="selectemailChanged($event.target.value)"  onchange="EmailChange()">
                     <option selected>Select Your Email</option>
                     @forelse ($emails as $item)
                     <option value="{{$item->id}}"{{ $item->id == $selectedemail->appId ? 'selected' : '' }}>{{$item->email}}</option>
@@ -183,7 +184,7 @@
                   </select>
                 </div>
                 <div class="col-lg-4 d-flex align-items-end justify-content-center">
-                  <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width:auto">
+                  <div id="reportrange" class="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; border-radius:5px; width:auto">
                     <i class="fa fa-calendar text-info"></i>&nbsp;
                     <span></span> <i class="fa fa-caret-down text-danger"></i>
                     
@@ -221,7 +222,6 @@
     <!-- /.container-fluid -->
 @push('googleApi')
 <script type="text/javascript">
-
 // setInterval(() => {
 //   handleAuthClick();
 // }, 5000);
@@ -246,12 +246,13 @@
     var initialDate = moment().subtract(7, 'days');
     var endDate = moment();
     
-    document.addEventListener('emailupdated', event => {
+    document.addEventListener('emailChanged', event => {
       
       const object = event.detail.data;
         email = object.email;
         filterEmail = object.filteremail;
         appId = object.id; 
+       
     });
         document.getElementById('authorize_button').style.visibility = 'visible';
     document.getElementById('signout_button').style.visibility = 'hidden';
@@ -368,6 +369,27 @@ $('#reportrange').daterangepicker({
 }, cb);
 
 cb(initialDate, endDate);
+function  EmailChange()
+{
+  setTimeout(() => {
+    $('#reportrange').daterangepicker({
+        startDate: initialDate,
+        endDate: endDate,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+ 
+    cb(initialDate, endDate);
+  console.log('changed called');
+  }, 2000);
+ 
+}
 $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
   var start = picker.startDate;
     var end = picker.endDate;
